@@ -1,12 +1,14 @@
 package app
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"statseventrelay/config"
 	"statseventrelay/log"
+	"statseventrelay/pubsub/redis"
 
 	"github.com/sirupsen/logrus"
 )
@@ -51,9 +53,20 @@ func wait() os.Signal {
 func run() error {
 	log.Info("application start")
 	defer log.Info("application exit")
-	// TODO: Stuff
+	// Context
+	ctx, cancel := context.WithCancel(context.Background())
+	// Pub/Sub Subscribtions
+	ps := redis.New(redis.Config{
+		Host: config.RedisHost(),
+	})
+	defer ps.Close()
+	_, err := ps.Subscribe(ctx, "player:play", "player:stop")
+	if err != nil {
+		return err
+	}
 	// Wait OS signal to exit
 	signal := wait()
 	log.WithField("signal", signal).Debug("received os signal")
+	cancel()
 	return nil
 }

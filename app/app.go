@@ -9,6 +9,7 @@ import (
 	"statseventrelay/config"
 	"statseventrelay/log"
 	"statseventrelay/pubsub/redis"
+	"statseventrelay/rabbitmq"
 
 	"github.com/sirupsen/logrus"
 )
@@ -60,10 +61,29 @@ func run() error {
 		Host: config.RedisHost(),
 	})
 	defer ps.Close()
-	_, err := ps.Subscribe(ctx, "player:play", "player:stop")
+	msgs, err := ps.Subscribe(ctx, "player:play", "player:stop")
 	if err != nil {
 		return err
 	}
+	// RabbitMQ
+	mq, err := rabbitmq.New(rabbitmq.Config{
+		Host: config.RabbitMQHost(),
+		User: config.RabbitMQUser(),
+		Pass: config.RabbitMQPass(),
+		Port: config.RabbitMQPort(),
+	})
+	if err != nil {
+		return err
+	}
+	defer mq.Close()
+	// Pass the pub/sub messages onto the stst processing queue
+	go func() {
+		for msg := range msgs {
+			if err := mq.Publish(msg.Payload); err != nil {
+				log.WithError(err).Error("error publishing message to queue")
+			}
+		}
+	}()
 	// Wait OS signal to exit
 	signal := wait()
 	log.WithField("signal", signal).Debug("received os signal")

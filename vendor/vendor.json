@@ -141,6 +141,12 @@
 			"revisionTime": "2017-04-17T08:08:15Z"
 		},
 		{
+			"checksumSHA1": "Om0cn0L5ewCIBcORQAXD8guTa9M=",
+			"path": "github.com/streadway/amqp",
+			"revision": "afe8eee29a74d213b1f3fb2586058157c397da60",
+			"revisionTime": "2017-03-13T17:48:48Z"
+		},
+		{
 			"checksumSHA1": "ArDa4bMPKzhiS1I7iioemBwZ6tE=",
 			"path": "golang.org/x/sys/unix",
 			"revision": "f3918c30c5c2cb527c0b071a27c35120a6c0719a",

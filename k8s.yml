@@ -1,0 +1,4 @@
+#
+# Kubernetes Deployment
+# Runs a single pod deployment for the stats relay.
+#
